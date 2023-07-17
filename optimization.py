@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from fe_analysis import FiniteElementAnalysis
-from holes_initialization import initialize_phi_func, domain_from_phi, compute_sign_dist
+from holes_initialization import initialize_phi_func, domain_from_phi, compute_sign_dist, \
+    initialize_phi_func_with_padding
 from plotting_utils import draw_displacements
 from upwind_scheme import UpwindScheme
 from scipy.signal import convolve2d
@@ -22,7 +23,9 @@ class LeveLSetOptimization:
         fem = FiniteElementAnalysis(self.shape)
 
         # phi = initialize_phi_func(self.shape, (4, 2), 0.2)
-        phi = initialize_phi_func(self.shape, (8, 4), 0.2)
+        phi = initialize_phi_func(self.shape, (12, 4), 0.8)
+        # phi = initialize_phi_func_with_padding(self.shape, (10, 4), 0.7, padding=5)
+
         density = domain_from_phi(phi, low=self.void)
 
         plt.matshow(phi)
@@ -56,14 +59,20 @@ class LeveLSetOptimization:
             plt.savefig(f'velocity/vel{iter}.png')
             plt.show()
 
-            conv_filter = 1 / 6 * np.array([[0, 1, 0], [1, 2, 1], [0, 1, 0]])
-            vel = convolve2d(vel, conv_filter, boundary='symm', mode='same')
+            # conv_filter = 1 / 6 * np.array([[0, 1, 0], [1, 2, 1], [0, 1, 0]])
+            conv_filter = 1 / 256 * np.array([
+                [1, 4, 6, 4, 1],
+                [4, 16, 24, 16, 4],
+                [6, 24, 36, 24, 6],
+                [4, 16, 24, 16, 4],
+                [1, 4, 6, 4, 1]
+            ])
+            vel = convolve2d(vel, conv_filter, boundary='pad', fillvalue=0, mode='same')
 
             plt.matshow(vel)
-            plt.title("velovity after filtering")
+            plt.title("velocity after filtering")
             plt.savefig(f'velocity/vel{iter}_f.png')
             plt.show()
-
 
             # TODO check
             # phi = scheme.update(phi, vel)
@@ -91,7 +100,7 @@ if __name__ == '__main__':
 
     dom_shape = (160, 80)
 
-    opt = LeveLSetOptimization(shape=dom_shape, lag_mult=2., dt=0.1, void=1e-4)
+    opt = LeveLSetOptimization(shape=dom_shape, lag_mult=0.1, dt=0.1, void=1e-4)
     density, phi = opt.optimize(100)
 
     plt.matshow(density)

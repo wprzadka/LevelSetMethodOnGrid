@@ -20,17 +20,29 @@ import json
 # Osher S., Fedkiw R., Level set methods and dynamic implicit surfaces, Applied
 # Mathematical Sciences, 153, Springer-Verlag, New York (2003)
 def initialize_phi_func(shape: tuple, holes_per_axis: tuple, radius: float):
+    phi = generate_cosine_func(shape, holes_per_axis, radius)
+    phi = np.where(phi > 0, 0.1, -0.1)
+    phi = skfmm.distance(phi, dx=1)
+    return phi
 
+
+def initialize_phi_func_with_padding(shape: tuple, holes_per_axis: tuple, radius: float, padding: int):
+    reduced_shape = (shape[0] - 2 * padding, shape[1] - 2 * padding)
+    phi = generate_cosine_func(reduced_shape, holes_per_axis, radius)
+    phi = np.where(phi > 0, 0.1, -0.1)
+    phi = np.pad(phi, padding, constant_values=-0.1)
+    phi = skfmm.distance(phi, dx=1)
+    return phi
+
+
+def generate_cosine_func(shape: tuple, holes_per_axis: tuple, radius: float):
     dom_x = np.linspace(0, 1, shape[0])
     dom_y = np.linspace(0, 1, shape[1])
     X, Y = np.meshgrid(dom_x, dom_y)
     # print(X.shape, Y.shape)
     # phi = np.array([[-np.cos] for x in dom_x] for y in dom_y)
     phi = -np.cos(X * holes_per_axis[0] * np.pi) * np.cos(Y * holes_per_axis[1] * np.pi) + radius - 1
-    phi = np.where(phi > 0, 0.1, -0.1)
-    phi = skfmm.distance(phi, dx=1)
     return phi
-
 
 # d(phi)/dt + sign(phi0)(|grad(phi)|-1) = 0 with
 # phi(t=0,x) = phi_0(x)
@@ -46,19 +58,15 @@ def domain_from_phi(phi: np.ndarray, low: float = 1e-9):
 
 if __name__ == '__main__':
     shape = (80, 40)
-    # holes = (3, 2)
-    domain = initialize_phi_func(shape, (4, 2), 0.1)
+    phi = initialize_phi_func(shape, (12, 4), 0.7)
 
-    plt.matshow(domain)
+    plt.matshow(phi)
     plt.show()
-    # print(centers)
 
-    # phi = compute_sign_dist(domain)
-    # plt.matshow(phi)
-    # plt.show()
+    plt.matshow(domain_from_phi(phi))
+    plt.show()
 
-    # with open('dom.txt', 'w') as f:
-    #     a=domain_from_phi(domain).T
-    #     txt = json.dumps(list(list(r) for r in a))
-    #     # json.dump(f, list(list(r) for r in a))
-    #     f.write(txt)
+    with open('dom.txt', 'w') as f:
+        a=domain_from_phi(phi)
+        txt = json.dumps(list(list(r) for r in a))
+        f.write(txt)

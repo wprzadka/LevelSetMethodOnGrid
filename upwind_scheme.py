@@ -12,7 +12,7 @@ class UpwindScheme:
         posVel = np.maximum(velocity, 0)
 
         # TODO check
-        # self.dt = 1 / np.max(np.abs(velocity))
+        self.dt = 1 / np.max(np.abs(velocity))
         # print(self.dt)
 
         forward_x = np.empty_like(phi)

@@ -25,8 +25,11 @@ class FiniteElementAnalysis:
         self.free = np.setdiff1d(self.dofs, self.fixed)
 
         self.f = np.zeros((self.ndof, 1))
+        # crane
         self.f[2 * (self.nelx + 1) * (self.nely + 1) - 1, 0] = -1
-
+        # cantilever
+        # self.f[2 * (self.nelx + 1) * (self.nely + 1) - (self.nely + 1), 0] = -1
+        
         self.KE = self.create_stiffmat()
 
     def compute_compliance(self, displacement: np.ndarray):
