@@ -22,10 +22,7 @@ class LeveLSetOptimization:
         scheme = UpwindScheme(self.dt)
         fem = FiniteElementAnalysis(self.shape)
 
-        # phi = initialize_phi_func(self.shape, (4, 2), 0.2)
-        phi = initialize_phi_func(self.shape, (12, 4), 0.8)
-        # phi = initialize_phi_func_with_padding(self.shape, (10, 4), 0.7, padding=5)
-
+        phi = initialize_phi_func(self.shape, (16, 6), 0.5)
         density = domain_from_phi(phi, low=self.void)
 
         plt.matshow(phi)
@@ -76,7 +73,7 @@ class LeveLSetOptimization:
 
             # TODO check
             # phi = scheme.update(phi, vel)
-            for i in range(10):
+            for i in range(20):
                 phi = scheme.update_test(phi, vel)
 
             plt.matshow(phi)
@@ -100,7 +97,7 @@ if __name__ == '__main__':
 
     dom_shape = (160, 80)
 
-    opt = LeveLSetOptimization(shape=dom_shape, lag_mult=0.1, dt=0.1, void=1e-4)
+    opt = LeveLSetOptimization(shape=dom_shape, lag_mult=0.09, dt=0.1, void=1e-4)
     density, phi = opt.optimize(100)
 
     plt.matshow(density)
