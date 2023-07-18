@@ -6,6 +6,10 @@ from plotting_utils import draw_displacements
 
 
 class FiniteElementAnalysis:
+    """
+    This FEM implementation is based on the open-source code written by Niels Aage and Villads Egede Johansen,
+    which can be found at https://www.topopt.mek.dtu.dk/apps-and-software/topology-optimization-codes-written-in-python
+    """
     
     def __init__(self, shape, E: float = 1, nu: float = 0.3, penal: float = 3.0):
         self.E = E
