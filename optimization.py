@@ -2,8 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from fe_analysis import FiniteElementAnalysis
-from holes_initialization import initialize_phi_func, domain_from_phi, compute_sign_dist, \
-    initialize_phi_func_with_padding
+from holes_initialization import initialize_phi_func, domain_from_phi, compute_sign_dist
 from plotting_utils import draw_displacements
 from upwind_scheme import UpwindScheme
 from scipy.signal import convolve2d
@@ -71,10 +70,8 @@ class LeveLSetOptimization:
             plt.savefig(f'velocity/vel{iter}_f.png')
             plt.show()
 
-            # TODO check
-            # phi = scheme.update(phi, vel)
             for i in range(20):
-                phi = scheme.update_test(phi, vel)
+                phi = scheme.update(phi, vel)
 
             plt.matshow(phi)
             plt.title("phi")
